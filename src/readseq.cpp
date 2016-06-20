@@ -1,3 +1,7 @@
+/*Test for checking if data from a fastq file is the same after being parsed.
+Place file "test.fastq" in current working directory or change the path in the
+code. */
+
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
