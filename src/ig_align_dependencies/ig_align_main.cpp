@@ -8,13 +8,14 @@
 extern "C" {
 #include "ig_align.h"
 }
-
+// Converts string to char array
 char *ToCharArray(std::string str) {
   char *c_array = new char[str.length() + 1];
   std::strcpy(c_array, str.c_str());
   return c_array;
 }
 
+// Converts string with spaces as delimiters to array of char arrays
 void PathArray(char **c_array, std::string str) {
   char *message = ToCharArray(str);
   int i = 0;
@@ -23,17 +24,13 @@ void PathArray(char **c_array, std::string str) {
   while ((c_array[i] = strtok(NULL, " ")) != NULL) {
     i = i + 1;
   }
-  // for (int j = 0; j < 5; j++) {
-  //   std::cout << c_array[j] << "\n";
-  // }
-  // return c_array;
 }
 
 int main(int argc, const char *argv[]) {
-
   try {
-    TCLAP::CmdLine cmd("Command description message should go here", ' ', "1");
+    TCLAP::CmdLine cmd("Aligns reads from fasta files", ' ', "1");
 
+    // tclap command line arguments
     TCLAP::ValueArg<std::string> ref_path(
         "r", "ref_path", "The path to the reference file", true,
         "test_data/igkv.fasta", "string");
@@ -101,13 +98,10 @@ int main(int argc, const char *argv[]) {
     // n_extra_refs
     int n_ref = n_extra_refs.getValue();
     // extra_ref_paths
-    // char **e_paths = NULL;
-    // if (extra_ref_paths.getValue() != "") {
     std::string paths = extra_ref_paths.getValue();
     char *extra_paths[n_ref + 1];
     PathArray(extra_paths, extra_ref_paths.getValue());
     const char **e_paths = (const char **)extra_paths;
-    //}
     // qry_path
     std::string str_qry_path = qry_path.getValue();
     char *q_path = ToCharArray(str_qry_path);
