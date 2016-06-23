@@ -1,7 +1,6 @@
 /*Test for checking if data from a fastq file is the same after being parsed.
 Place file "shorttest.fastq" in current working directory or change the path in
-the
-code. */
+the code. */
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -12,18 +11,20 @@ code. */
 #include <stdio.h>
 #include <zlib.h>
 
-// declare the type of file handler and the read() function
+// Declare the type of file handler and the read() function
 KSEQ_INIT(gzFile, gzread)
 
-extern "C" void ReadFile() {
+// Reads a fastq file and writes the parsed contents with labels to another
+// file
+extern "C" void ReadFile(char file_name[], char output_file[]) {
   gzFile fp;
   kseq_t *seq;
   int l;
   FILE *writefp;
-  writefp = fopen("readtest.txt", "w");
-  fp = gzopen("shorttest.fastq", "r"); // open the file handler
-  seq = kseq_init(fp);                 // initialize seq
-  while ((l = kseq_read(seq)) >= 0) {  // read sequence
+  writefp = fopen(output_file, "w");
+  fp = gzopen(file_name, "r");        // open the file handler
+  seq = kseq_init(fp);                // initialize seq
+  while ((l = kseq_read(seq)) >= 0) { // read sequence
     fprintf(writefp, "name: @%s\n", seq->name.s);
     if (seq->comment.l)
       fprintf(writefp, "comment: %s\n", seq->comment.s);
@@ -36,16 +37,18 @@ extern "C" void ReadFile() {
   fclose(writefp);
 }
 
-std::vector<std::string> OpenFile(std::string filename, bool label) {
+// Opens file filename and puts its contents in original_file, a vector of
+// strings. Takes in boolean label, which strips off labels if true.
+void OpenFile(std::string filename, bool label,
+              std::vector<std::string> &original_file) {
   std::ifstream test_file;
-  std::vector<std::string> original_file;
   test_file.open(filename.c_str());
   std::string read_file;
   if (test_file.is_open()) {
     while (test_file.good()) {
       test_file >> read_file;
       if (label) {
-        // strip labels
+        // Strip labels
         if ("name:" != read_file && "comment:" != read_file &&
             "seq:" != read_file && "qual:" != read_file)
           original_file.push_back(read_file);
@@ -59,13 +62,23 @@ std::vector<std::string> OpenFile(std::string filename, bool label) {
       read_file = "";
     }
   }
-  return original_file;
 }
 
 namespace igsw {
 TEST_CASE("Issue 3: Comparing parsed and original files") {
-  ReadFile();
-  std::vector<std::string> parsed_vector = OpenFile("readtest.txt", true);
+  char filename[] = "test_data/shorttest.fastq";
+  char output[] = "readtest.txt";
+  ReadFile(filename, output);
+  std::vector<std::string> parsed_vector;
+  OpenFile("readtest.txt", true, parsed_vector);
+  /*Comparing expected values (from shorttest.fastq) to the parsed vector
+  To compare with the expected values from another file, use:
+    std::vector<std::string> <VECTOR NAME>;
+    OpenFile(<FILE PATH>, false, <VECTOR NAME>);
+    for (int i = 0; i < parsed_vector.size(); i++){
+    REQUIRE (parsed_vector[i] == <VECTOR NAME>[i]);
+  }
+  */
   REQUIRE("@GTACTCTGGTTTGTC|PRCONS=20080924-IGHM|CONSCOUNT=17|DUPCOUNT=9" ==
           parsed_vector[0]);
   REQUIRE("NNNNNNNNNNNNNNNNNNNNNNNTCCTACGCTGGTGAAACCCACACAGACCCTCACGCTGACCTGCAC"
