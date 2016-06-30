@@ -20,9 +20,9 @@ void PathArray(char **c_array, std::string str) {
   char *message = ToCharArray(str);
   int i = 0;
   c_array[i] = strtok(message, " ");
-  i = i + 1;
+  i++;
   while ((c_array[i] = strtok(NULL, " ")) != NULL) {
-    i = i + 1;
+    i++;
   }
 }
 
@@ -46,9 +46,8 @@ int main(int argc, const char *argv[]) {
         "", "string (space delimiter)");
     cmd.add(extra_ref_paths);
 
-    TCLAP::ValueArg<std::string> qry_path("q", "qry_path",
-                                          "The path to the query file", true,
-                                          "test_data/iglv.fasta", "string");
+    TCLAP::ValueArg<std::string> qry_path(
+        "q", "qry_path", "The path to the query file", true, "", "string");
     cmd.add(qry_path);
 
     TCLAP::ValueArg<std::string> output_path("o", "output_path",
