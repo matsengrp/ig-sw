@@ -2,7 +2,7 @@
 
 Smith-Waterman alignment for immunoglobulin sequences.
 
-## [](https://github.com/matsengrp/ig-sw/blob/master/README.md#introduction)Introduction
+## Introduction
 
 This is a C++ implementation of the  `vdjalign align-fastq` command in [ighutil](https://github.com/matsengrp/ighutil). This implementation uses the [Smith-Waterman](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) (SW) alignment algorithm, a simple but effective way to align DNA sequences.
 
