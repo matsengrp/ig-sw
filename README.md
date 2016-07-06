@@ -9,6 +9,9 @@ This is a C++ implementation of the  `vdjalign align-fastq` command in [ighutil]
 ## Prerequisites
 
 - [zlib](http://www.zlib.net/)
+- [scons](http://scons.org/)
+- [pthread (POSIX Thread)](https://computing.llnl.gov/tutorials/pthreads/)
+- C++03-compatible compiler (tested against [g++](https://gcc.gnu.org/) 4.8)
 - a smile
 
 ## Running the alignment
