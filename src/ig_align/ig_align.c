@@ -1,7 +1,6 @@
 #include "ig_align.h"
 
 #include <assert.h>
-#include <emmintrin.h>
 #include <math.h>
 #include <pthread.h>
 #include <stdbool.h>
