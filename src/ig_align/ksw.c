@@ -25,13 +25,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-
-// Conditional SIMD support: only use SSE2 on x86/x64 architectures
-#if defined(__x86_64__) || defined(__i386__) || defined(_M_X64) || defined(_M_IX86)
-    #include <emmintrin.h>
-    #define KSW_SSE2
-#endif
-
+#include <emmintrin.h>
 #include "ksw.h"
 
 #ifdef USE_MALLOC_WRAPPERS
@@ -51,11 +45,7 @@ const kswr_t g_defr = { 0, -1, -1, -1, -1, -1, -1 };
 struct _kswq_t {
 	int qlen, slen;
 	uint8_t shift, mdiff, max, size;
-#ifdef KSW_SSE2
 	__m128i *qp, *H0, *H1, *E, *Hmax;
-#else
-	void *qp, *H0, *H1, *E, *Hmax;  // Placeholders for non-SSE2 builds
-#endif
 };
 
 /**
@@ -69,7 +59,6 @@ struct _kswq_t {
  *
  * @return       Query data structure
  */
-#ifdef KSW_SSE2
 kswq_t *ksw_qinit(int size, int qlen, const uint8_t *query, int m, const int8_t *mat)
 {
 	kswq_t *q;
@@ -367,39 +356,6 @@ kswr_t ksw_align(int qlen, uint8_t *query, int tlen, uint8_t *target, int m, con
 		r.tb = r.te - rr.te, r.qb = r.qe - rr.qe;
 	return r;
 }
-
-#else // !KSW_SSE2
-
-// Stub functions for non-SSE2 architectures
-kswq_t *ksw_qinit(int size, int qlen, const uint8_t *query, int m, const int8_t *mat)
-{
-	// Return NULL to indicate SIMD is not available
-	return NULL;
-}
-
-kswr_t ksw_u8(kswq_t *q, int tlen, const uint8_t *target, int _gapo, int _gape, int xtra)
-{
-	// Return default result - caller should use scalar fallback
-	return g_defr;
-}
-
-kswr_t ksw_i16(kswq_t *q, int tlen, const uint8_t *target, int _gapo, int _gape, int xtra)
-{
-	// Return default result - caller should use scalar fallback
-	return g_defr;
-}
-
-kswr_t ksw_align(int qlen, uint8_t *query, int tlen, uint8_t *target, int m, const int8_t *mat, int gapo, int gape, int xtra, kswq_t **qry)
-{
-	// Use scalar fallback
-	kswr_t r;
-	r.score = ksw_extend(qlen, query, tlen, target, m, mat, gapo, gape, -1, 0, 0, 0, NULL, NULL, NULL, NULL, NULL);
-	r.tb = r.te = r.qb = r.qe = -1;
-	if (qry) *qry = NULL;
-	return r;
-}
-
-#endif // KSW_SSE2
 
 /********************
  *** SW extension ***
